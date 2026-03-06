@@ -163,14 +163,14 @@ def load_openai_key():
         key = st.secrets["openai"]["OPENAI_API_KEY"]
         return key.strip() if key and key.strip() else ""
     except Exception: return ""
-
 # ============================================================
 # OpenAI 분석
 # ============================================================
 def ai_analyze(products_info, context="네이버 쇼핑", api_key=""):
-    if not api_key: return "⚠️ OpenAI API 키가 설정되지 않았습니다."
+    if not api_key:
+        return "⚠️ OpenAI API 키가 설정되지 않았습니다."
 
-prompt = f"""
+    prompt = f"""
 당신은 한국 식품/음료 시장의 데이터 기반 분석 전문가이자,
 15년 경력의 음료 마케팅 기획자입니다.
 
@@ -240,38 +240,38 @@ prompt = f"""
 - 한국어로 답변하세요.
 """
 
-try:
-    resp = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "gpt-4o-mini",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "한국 식품/음료 시장 트렌드 분석 전문가. 데이터 기반으로 간결하고 실용적인 인사이트를 제공합니다."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.7,
-            "max_tokens": 2000
-        },
-        timeout=30
-    )
+    try:
+        resp = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "한국 식품/음료 시장 트렌드 분석 전문가. 데이터 기반으로 간결하고 실용적인 인사이트를 제공합니다."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "temperature": 0.7,
+                "max_tokens": 2000
+            },
+            timeout=30
+        )
 
-    if resp.status_code == 200:
-        return resp.json()["choices"][0]["message"]["content"]
-    else:
-        return f"⚠️ API 오류 ({resp.status_code}): {resp.text[:200]}"
+        if resp.status_code == 200:
+            return resp.json()["choices"][0]["message"]["content"]
+        else:
+            return f"⚠️ API 오류 ({resp.status_code}): {resp.text[:200]}"
 
-except Exception as e:
-    return f"⚠️ 요청 실패: {str(e)}"
+    except Exception as e:
+        return f"⚠️ 요청 실패: {str(e)}"
 
 # ============================================================
 # 컬리 API
