@@ -241,24 +241,45 @@ prompt = f"""
 """
 
 try:
-        resp = requests.post("https://api.openai.com/v1/chat/completions",            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"model": "gpt-4o-mini", "messages": [
-                {"role": "system", "content": "한국 식품/음료 시장 트렌드 분석 전문가. 데이터 기반으로 간결하고 실용적인 인사이트를 제공합니다."},
-                {"role": "user", "content": prompt}
-            ], "temperature": 0.7, "max_tokens": 2000}, timeout=30)
-        if resp.status_code == 200:
-            return resp.json()["choices"][0]["message"]["content"]
-        else:
-            return f"⚠️ API 오류 ({resp.status_code}): {resp.text[:200]}"
-    except Exception as e:
-        return f"⚠️ 요청 실패: {str(e)}"
+    resp = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "한국 식품/음료 시장 트렌드 분석 전문가. 데이터 기반으로 간결하고 실용적인 인사이트를 제공합니다."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 2000
+        },
+        timeout=30
+    )
+
+    if resp.status_code == 200:
+        return resp.json()["choices"][0]["message"]["content"]
+    else:
+        return f"⚠️ API 오류 ({resp.status_code}): {resp.text[:200]}"
+
+except Exception as e:
+    return f"⚠️ 요청 실패: {str(e)}"
 
 # ============================================================
 # 컬리 API
 # ============================================================
 @st.cache_data(ttl=3600, show_spinner=False)
 def kurly_load_tree():
-    r = requests.get(f"{KURLY_BASE}/category-groups", headers=KURLY_H, timeout=10); r.raise_for_status()
+    r = requests.get(f"{KURLY_BASE}/category-groups", headers=KURLY_H, timeout=10)
+    r.raise_for_status()
     tree = {}
     for c in r.json()["data"]["main"]:
         code, name = str(c["code"]), c["name"]
