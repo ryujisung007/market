@@ -240,9 +240,8 @@ prompt = f"""
 - 한국어로 답변하세요.
 """
 
-    try:
-        resp = requests.post("https://api.openai.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+try:
+        resp = requests.post("https://api.openai.com/v1/chat/completions",            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             json={"model": "gpt-4o-mini", "messages": [
                 {"role": "system", "content": "한국 식품/음료 시장 트렌드 분석 전문가. 데이터 기반으로 간결하고 실용적인 인사이트를 제공합니다."},
                 {"role": "user", "content": prompt}
