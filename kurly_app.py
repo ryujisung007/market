@@ -169,6 +169,7 @@ def load_openai_key():
 # ============================================================
 def ai_analyze(products_info, context="네이버 쇼핑", api_key=""):
     if not api_key: return "⚠️ OpenAI API 키가 설정되지 않았습니다."
+
 prompt = f"""
 당신은 한국 식품/음료 시장의 데이터 기반 분석 전문가이자,
 15년 경력의 음료 마케팅 기획자입니다.
