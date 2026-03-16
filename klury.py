@@ -211,11 +211,25 @@ def load_openai_key():
         return ""
 
 def load_gemini_key():
+    """GOOGLE_API_KEY / GEMINI_API_KEY 모든 위치에서 탐색"""
     try:
-        key = st.secrets["gemini"]["GEMINI_API_KEY"]
-        return key.strip() if key and key.strip() else ""
+        # 최상위 직접 키
+        for k in ("GOOGLE_API_KEY", "GEMINI_API_KEY", "google_api_key", "gemini_api_key"):
+            v = st.secrets.get(k, "")
+            if v and v.strip():
+                return v.strip()
+        # 중첩 섹션
+        for sec in ("gemini", "google"):
+            try:
+                for k in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "api_key"):
+                    v = st.secrets[sec].get(k, "")
+                    if v and v.strip():
+                        return v.strip()
+            except Exception:
+                pass
     except Exception:
-        return ""
+        pass
+    return ""
 
 # ============================================================
 # OpenAI 분석 (컬리용)
@@ -516,7 +530,7 @@ package_format=캔·병·팩·파우치·분말·기타 / sugar_positioning=제�
 입력: {json.dumps(product_lines, ensure_ascii=False, indent=2)}"""
         try:
             response = gemini_client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt,
+                model="gemini-2.5-pro", contents=prompt,
                 config={"response_mime_type": "application/json", "response_schema": InsightBatch}
             )
             parsed = response.parsed
@@ -555,7 +569,7 @@ def generate_market_report(agg_df, flavor_stats, trend_stats, query, sort_label,
 검색어:{query} / 정렬:{sort_label} / 기간:{d1}~{d2}
 데이터:{json.dumps(payload, ensure_ascii=False, indent=2)}"""
     try:
-        resp = gemini_client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        resp = gemini_client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
         return resp.text if hasattr(resp, "text") else "보고서 생성 실패"
     except Exception as e:
         return f"보고서 생성 실패: {e}"
